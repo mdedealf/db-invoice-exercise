@@ -82,6 +82,31 @@ create table public.order_promotion (
 	foreign key (promotion_id) references promotion(id)
 );
 
+create table public.invoice (
+    id serial primary key not null ,
+    invoice_code varchar(50) unique not null ,
+
+    customer_id bigint not null ,
+    seller_id bigint not null ,
+    customer_order_id bigint not null ,
+    payment_id bigint not null ,
+    shipping_id bigint not null ,
+    promotion_id bigint,
+
+    total_product_price decimal(15, 2) not null ,
+    total_discount decimal(15, 2) default 0.00 ,
+    total_payment decimal(15, 2) not null ,
+    
+    issue_date date not null default current_date,
+    
+    foreign key (customer_id) references customer(id),
+    foreign key (seller_id) references seller(id),
+    foreign key (customer_order_id) references customer_order(id),
+    foreign key (payment_id) references payment(id),
+    foreign key (shipping_id) references shipping(id),
+    foreign key (promotion_id) references promotion(id)
+);
+
 -- INSERT customer data
 insert into customer (name, phone_number, address, city, postal_code, province, country)
 values ('Sum Ting Wong', '6281312341234', 'Digital Park, Sambau, Kecamatan Nongsa', 'Batam', '29466', 'Kepulauan Riau', 'Indonesia');
@@ -117,58 +142,6 @@ values ('DDDT845', 986385, '2024-01-01', '2024-12-31');
 -- Applying promotion into the customer order
 insert into order_promotion (customer_oder_id, promotion_id)
 values (1,1);
-
-SELECT 
-    c.name AS customer_name,
-    c.phone_number,
-    c.address,
-    c.city,
-    c.postal_code,
-    c.province,
-    c.country,
-    
-    co.order_date,
-    co.total_price AS order_total,
-    co.shipping_cost,
-    co.insurance_cost,
-    co.service_fee,
-    co.application_fee,
-    
-    s.name AS seller_name,
-    
-    p.name AS product_name,
-    p.weight,
-    p.price AS unit_price,
-    
-    oi.quantity,
-    oi.unit_price,
-    oi.total_price AS item_total,
-    
-    pay.payment_method,
-    pay.payment_date,
-    pay.total_amount AS paid_amount,
-    
-    ship.shipping_method,
-    ship.courrier,
-    ship.tracking_number,
-    
-    promo.promo_code,
-    promo.dicsount_amount,
-    promo.valid_from AS promo_start,
-    promo.valid_until AS promo_end
-    
-FROM 
-    customer_order co
-JOIN customer c ON co.customer_id = c.id
-JOIN order_item oi ON co.id = oi.customer_order_id
-JOIN product p ON oi.product_id = p.id
-JOIN seller s ON p.seller_id = s.id
-JOIN payment pay ON co.id = pay.customer_order_id
-JOIN shipping ship ON co.id = ship.customer_order_id
-LEFT JOIN order_promotion op ON co.id = op.customer_oder_id
-LEFT JOIN promotion promo ON op.promotion_id = promo.id
-WHERE 
-    co.id = 1;
 
 
 
