@@ -107,72 +107,6 @@ create table public.invoice (
     foreign key (promotion_id) references promotion(id)
 );
 
--- SQL Query to generate invoice
-SELECT
-    i.invoice_code AS "Invoice Code",
-
-    -- Seller Information
-    s.name AS "Seller Name",
-
-    -- Customer (Buyer) Information
-    c.name AS "Buyer Name",
-    c.phone_number AS "Phone Number",
-    CONCAT(
-        c.address, ', ',
-        c.city, ', ',
-        c.province, ', ',
-        c.postal_code, ', ',
-        c.country
-    ) AS "Buyer Address",
-    co.order_date AS "Purchase Date",
-
-    -- Product Information
-    p.name AS "Product Name",
-    p.weight AS "Product Weight",
-    oi.quantity AS "Product Quantity",
-    oi.unit_price AS "Product Unit Price",
-    oi.total_price AS "Total Product Price",
-
-    -- Cost Details
-    co.shipping_cost AS "Shipping Cost",
-    co.insurance_cost AS "Insurance Cost",
-    co.service_fee AS "Service Fee",
-    co.application_fee AS "Application Fee",
-    i.total_product_price AS "Total Product Price",
-    i.total_discount AS "Discount Amount",
-    i.total_payment AS "Total Payment",
-
-    -- Promotion Information
-    prm.promo_code AS "Promo Code",
-    prm.dicsount_amount AS "Promotion Amount",
-
-    -- Shipping Information
-    shp.shipping_method AS "Shipping Method",
-    shp.carrier AS "Courier",
-    shp.tracking_number AS "Tracking Number",
-
-    -- Payment Information
-    pmt.payment_method AS "Payment Method",
-    pmt.payment_date AS "Payment Date",
-
-    -- Invoice Metadata
-    i.issue_date AS "Invoice Issue Date"
-
-FROM
-    public.invoice i
-    JOIN public.customer c ON i.customer_id = c.id
-    JOIN public.seller s ON i.seller_id = s.id
-    JOIN public.customer_order co ON i.customer_order_id = co.id
-    JOIN public.order_item oi ON co.id = oi.customer_order_id
-    JOIN public.product p ON oi.product_id = p.id
-    JOIN public.payment pmt ON i.payment_id = pmt.id
-    JOIN public.shipping shp ON i.shipping_id = shp.id
-    LEFT JOIN public.promotion prm ON i.promotion_id = prm.id
-
-WHERE
-    i.invoice_code = 'INV/20330111/MPL/3694336524';
-
-
 -- INSERT customer data
 insert into customer (name, phone_number, address, city, postal_code, province, country)
 values ('Sum Ting Wong', '6281312341234', 'Digital Park, Sambau, Kecamatan Nongsa', 'Batam', '29466', 'Kepulauan Riau', 'Indonesia');
@@ -209,7 +143,66 @@ values ('DDDT845', 986385, '2024-01-01', '2024-12-31');
 insert into order_promotion (customer_oder_id, promotion_id)
 values (1,1);
 
+-- SQL Query to generate invoice
+SELECT i.invoice_code        AS "Invoice Code",
 
+       -- Seller Information
+       s.name                AS "Seller Name",
 
+       -- Customer (Buyer) Information
+       c.name                AS "Buyer Name",
+       co.order_date         AS "Purchase Date",
+       c.phone_number        AS "Phone Number",
+       CONCAT(
+               c.address, ', ',
+               c.city, ', ',
+               c.province, ', ',
+               c.postal_code, ', ',
+               c.country
+       )                     AS "Buyer Address",
+
+       -- Product Information
+       p.name                AS "Product Name",
+       p.weight              AS "Product Weight",
+       oi.quantity           AS "Product Quantity",
+       oi.unit_price         AS "Product Unit Price",
+       oi.total_price        AS "Total Product Price",
+
+       -- Cost Details
+       co.shipping_cost      AS "Shipping Cost",
+       co.insurance_cost     AS "Insurance Cost",
+       co.service_fee        AS "Service Fee",
+       co.application_fee    AS "Application Fee",
+       i.total_product_price AS "Total Product Price",
+       i.total_discount      AS "Cashback Amount",
+       i.total_payment       AS "Total Payment",
+
+       -- Promotion Information
+       prm.promo_code        AS "Promo Code",
+       prm.dicsount_amount   AS "Cashback Amount",
+
+       -- Shipping Information
+       shp.shipping_method   AS "Shipping Method",
+       shp.carrier           AS "Courier",
+       shp.tracking_number   AS "Tracking Number",
+
+       -- Payment Information
+       pmt.payment_method    AS "Payment Method",
+       pmt.payment_date      AS "Payment Date",
+
+       -- Invoice Metadata
+       i.issue_date          AS "Invoice Issue Date"
+
+FROM invoice i
+         JOIN customer c ON i.customer_id = c.id
+         JOIN seller s ON i.seller_id = s.id
+         JOIN customer_order co ON i.customer_order_id = co.id
+         JOIN order_item oi ON co.id = oi.customer_order_id
+         JOIN product p ON oi.product_id = p.id
+         JOIN payment pmt ON i.payment_id = pmt.id
+         JOIN shipping shp ON i.shipping_id = shp.id
+         LEFT JOIN promotion prm ON i.promotion_id = prm.id
+
+WHERE i.invoice_code = 'INV/20330111/MPL/3694336524';
 
 
